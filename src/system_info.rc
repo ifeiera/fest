@@ -21,16 +21,16 @@ BEGIN
     BEGIN
         BLOCK "040904E4"
         BEGIN
-            VALUE "CompanyName",      "Eterninety\0"
-            VALUE "FileDescription",  "System Information Collection Library for Windows\0"
-            VALUE "FileVersion",      "0.4.2\0"
-            VALUE "InternalName",     "systeminfo\0"
-            VALUE "LegalCopyright",   "Copyright (c) 2025 Eterninety. All rights reserved.\0"
-            VALUE "OriginalFilename", "systeminfo.dll\0"
-            VALUE "ProductName",      "System Information Collector\0"
-            VALUE "ProductVersion",   "0.4.2\0"
-            VALUE "Comments",         "Collects detailed system hardware information including CPU, GPU, Memory, Storage, and Peripherals\0"
-            VALUE "MinimumSystemVersion", "Windows 7 (6.1) or later\0"
+            VALUE "CompanyName",      "Eterninety"
+            VALUE "FileDescription",  "System Information Collection Library for Windows"
+            VALUE "FileVersion",      "0.4.2"
+            VALUE "InternalName",     "systeminfo"
+            VALUE "LegalCopyright",   "Copyright (c) 2025 Eterninety. All rights reserved."
+            VALUE "OriginalFilename", "systeminfo.dll"
+            VALUE "ProductName",      "System Information Collector"
+            VALUE "ProductVersion",   "0.4.2"
+            VALUE "Comments",         "Collects detailed system hardware information including CPU, GPU, Memory, Storage, and Peripherals"
+            VALUE "MinimumSystemVersion", "Windows 7 (6.1) or later"
         END
     END
     BLOCK "VarFileInfo"
