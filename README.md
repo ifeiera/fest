@@ -29,7 +29,7 @@ FEST is a high-performance C library that collects comprehensive Windows system 
 - **Smart Data Refresh** only updates information that changes frequently
 - **High-precision Timers** for accurate monitoring intervals
 
-> 😄 Fun fact: Since I had no idea how to handle JSON in C (there's no built-in support), I just wrote my own JSON generator from scratch in [`json_structure.h`](https://github.com/ifeiera/fest/blob/main/include/json_structure.h) and [`json_structure.c`](https://github.com/ifeiera/fest/blob/main/src/json_structure.c) by manually formatting strings.
+> Since I had no idea how to handle JSON in C (there's no built-in support), I just wrote my own JSON generator from scratch in [`json_structure.h`](https://github.com/ifeiera/fest/blob/main/include/json_structure.h) and [`json_structure.c`](https://github.com/ifeiera/fest/blob/main/src/json_structure.c) by manually formatting strings.
 
 ```c
 // Example of how we manually format JSON from json_structure.c
