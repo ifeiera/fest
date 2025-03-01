@@ -6,7 +6,7 @@ void print_final_json(const char *jsonData)
 {
     printf("\n--- Final System Information JSON ---\n");
     printf("%s\n", jsonData);
-    printf("----------------------------------------\n");
+    printf("--- End of System Information JSON ---\n");
 }
 
 int main()
