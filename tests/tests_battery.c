@@ -18,8 +18,6 @@ void test_battery_info(const char *jsonData)
     assert(strstr(jsonData, "\"power_plugged\"") != NULL);
 
     printf("Battery test passed\n");
-    // Debug output
-    printf("Received JSON: %s\n", jsonData);
 }
 
 int main()
