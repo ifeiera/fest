@@ -35,12 +35,3 @@ jobs:
         working-directory: ${{github.workspace}}/build
         # Add -V for verbose output
         run: ctest -C ${{env.BUILD_TYPE}} -V
-
-      # Optional: Archive artifacts
-      - name: Archive DLL and Tests
-        uses: actions/upload-artifact@v3
-        with:
-          name: systeminfo-dll-and-tests
-          path: |
-            ${{github.workspace}}/build/Debug/*.dll
-            ${{github.workspace}}/build/tests/Debug/*.exe
