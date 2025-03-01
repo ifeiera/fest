@@ -1,0 +1,40 @@
+#include <windows.h>
+
+// Specify minimum required Windows version (Windows 7 or later)
+#ifndef WINVER
+#define WINVER 0x0601       // Windows 7
+#endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0601 // Windows 7
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     0,4,2
+PRODUCTVERSION  0,4,2
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+FILEFLAGS       0
+FILEOS          VOS__WINDOWS32
+FILETYPE        VFT_DLL
+FILESUBTYPE     0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",      "Eterninety\0"
+            VALUE "FileDescription",  "System Information Collection Library for Windows\0"
+            VALUE "FileVersion",      "0.4.2\0"
+            VALUE "InternalName",     "systeminfo\0"
+            VALUE "LegalCopyright",   "Copyright (c) 2025 Eterninety. All rights reserved.\0"
+            VALUE "OriginalFilename", "systeminfo.dll\0"
+            VALUE "ProductName",      "System Information Collector\0"
+            VALUE "ProductVersion",   "0.4.2\0"
+            VALUE "Comments",         "Collects detailed system hardware information including CPU, GPU, Memory, Storage, and Peripherals\0"
+            VALUE "MinimumSystemVersion", "Windows 7 (6.1) or later\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END 
