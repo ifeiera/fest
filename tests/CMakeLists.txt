@@ -1,0 +1,32 @@
+# Add test executables
+add_executable(test_storage tests_storage.c)
+add_executable(test_memory tests_memory.c)
+add_executable(test_cpu tests_cpu.c)
+add_executable(test_gpu tests_gpu.c)
+add_executable(test_motherboard tests_motherboard.c)
+add_executable(test_network tests_network.c)
+add_executable(test_audio tests_audio.c)
+add_executable(test_monitor tests_monitor.c)
+add_executable(test_battery tests_battery.c)
+
+# Link with main library
+target_link_libraries(test_storage systeminfo)
+target_link_libraries(test_memory systeminfo)
+target_link_libraries(test_cpu systeminfo)
+target_link_libraries(test_gpu systeminfo)
+target_link_libraries(test_motherboard systeminfo)
+target_link_libraries(test_network systeminfo)
+target_link_libraries(test_audio systeminfo)
+target_link_libraries(test_monitor systeminfo)
+target_link_libraries(test_battery systeminfo)
+
+# Add tests
+add_test(NAME TestStorage COMMAND test_storage)
+add_test(NAME TestMemory COMMAND test_memory)
+add_test(NAME TestCPU COMMAND test_cpu)
+add_test(NAME TestGPU COMMAND test_gpu)
+add_test(NAME TestMotherboard COMMAND test_motherboard)
+add_test(NAME TestNetwork COMMAND test_network)
+add_test(NAME TestAudio COMMAND test_audio)
+add_test(NAME TestMonitor COMMAND test_monitor)
+add_test(NAME TestBattery COMMAND test_battery) 
