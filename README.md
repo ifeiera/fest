@@ -1,4 +1,4 @@
-<img src="https://res.cloudinary.com/dzljlz2nn/image/upload/f_auto,q_auto,r_80/uploads/twu0lplckud1n3mtzgmt" alt="Banner" width="1024">
+<img src="https://res.cloudinary.com/dzljlz2nn/image/upload/f_auto,q_auto/uploads/twu0lplckud1n3mtzgmt" alt="Banner" width="1024">
 
 # FEST - Fast & Efficient System Tracking
 
@@ -221,7 +221,7 @@ cmake --build .
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
