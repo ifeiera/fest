@@ -1,0 +1,37 @@
+#include "system_info_dll.h"
+#include <stdio.h>
+#include <assert.h>
+
+void test_gpu_info(const char *jsonData)
+{
+    assert(jsonData != NULL);
+    assert(strlen(jsonData) > 0);
+    assert(strstr(jsonData, "\"gpu\"") != NULL);
+
+    // Validate important GPU fields
+    assert(strstr(jsonData, "\"name\"") != NULL);
+    assert(strstr(jsonData, "\"vram\"") != NULL);
+    assert(strstr(jsonData, "\"shared_memory\"") != NULL);
+    assert(strstr(jsonData, "\"type\"") != NULL);
+
+    printf("GPU test passed\n");
+}
+
+int main()
+{
+    int testsPassed = 0;
+    int totalTests = 1;
+
+    setSystemInfoCallback(test_gpu_info);
+
+    if (startSystemMonitoring(100))
+    {
+        Sleep(200);
+        testsPassed++;
+    }
+
+    stopSystemMonitoring();
+
+    printf("Tests passed: %d/%d\n", testsPassed, totalTests);
+    return (testsPassed == totalTests) ? 0 : 1;
+}
