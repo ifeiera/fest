@@ -9,8 +9,8 @@ on:
     branches: ["main"]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  # Set build type to Debug untuk menjalankan tests
+  BUILD_TYPE: Debug
 
 jobs:
   build:
@@ -33,6 +33,14 @@ jobs:
 
       - name: Test
         working-directory: ${{github.workspace}}/build
-        # Execute tests defined by the CMake configuration.
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        run: ctest -C ${{env.BUILD_TYPE}}
+        # Add -V for verbose output
+        run: ctest -C ${{env.BUILD_TYPE}} -V
+
+      # Optional: Archive artifacts
+      - name: Archive DLL and Tests
+        uses: actions/upload-artifact@v3
+        with:
+          name: systeminfo-dll-and-tests
+          path: |
+            ${{github.workspace}}/build/Debug/*.dll
+            ${{github.workspace}}/build/tests/Debug/*.exe
