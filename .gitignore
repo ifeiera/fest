@@ -1,2 +1,10 @@
+# Basic
 build
 .vscode
+
+# Certificate
+*.cer
+*.crt
+*.pem
+*.pfx
+*.p12
