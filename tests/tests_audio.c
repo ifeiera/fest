@@ -8,7 +8,10 @@ void test_audio_info(const char *jsonData)
     assert(strlen(jsonData) > 0);
     assert(strstr(jsonData, "\"audio\"") != NULL);
 
-    // Validate important Audio fields
+    /* Validate important Audio fields
+     *  check if name are present
+     *  check if manufacturer are present
+     */
     assert(strstr(jsonData, "\"name\"") != NULL);
     assert(strstr(jsonData, "\"manufacturer\"") != NULL);
 
