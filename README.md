@@ -1,4 +1,4 @@
-<img src="https://res.cloudinary.com/dzljlz2nn/image/upload/f_auto,q_auto/uploads/twu0lplckud1n3mtzgmt" alt="Banner" width="1024">
+<img src="https://res.cloudinary.com/dzljlz2nn/image/upload/f_auto,q_auto/v1/uploads/dzzs8mnibujfie97yjzt" alt="Banner" width="1024">
 
 # FEST - Fast & Efficient System Tracking
 
@@ -9,9 +9,9 @@
 
 ## 🚀 What is FEST?
 
-FEST is a high-performance C library that collects comprehensive Windows system information in JSON format. Built with speed and efficiency in mind, it's perfect for system monitoring, diagnostics, and QA testing.
+FEST is a high-performance C library that collects comprehensive Windows system information in JSON format. Built with speed and efficiency in mind, it's perfect for system monitoring, diagnostics, and QC testing.
 
-**Born for the QA labs at Axioo Indonesia**, FEST delivers the system details you need without the overhead.
+**Born for the QC labs at Axioo Indonesia**, FEST delivers the system details you need without the overhead.
 
 ## ✨ Why FEST?
 
