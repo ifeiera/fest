@@ -66,6 +66,11 @@ target_link_libraries(test_app systeminfo)
 # Enable testing with configuration
 enable_testing()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Create test directory first
+    add_custom_command(TARGET systeminfo PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        ${CMAKE_BINARY_DIR}/tests/${CMAKE_BUILD_TYPE})
+
     # Copy DLL to test directory post-build
     add_custom_command(TARGET systeminfo POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
