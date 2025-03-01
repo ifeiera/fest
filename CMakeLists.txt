@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(systeminfo C)
 
+# Set build type if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
 # Build shared library
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(BUILD_SHARED_LIBS ON)
@@ -56,4 +61,46 @@ target_link_libraries(systeminfo dxgi d3d11 wbemuuid oleaut32 ole32 pdh iphlpapi
 
 # Add test application
 add_executable(test_app src/test_app.c)
-target_link_libraries(test_app systeminfo) 
+target_link_libraries(test_app systeminfo)
+
+# Enable testing with configuration
+enable_testing()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Copy DLL to test directory post-build
+    add_custom_command(TARGET systeminfo POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:systeminfo>
+        ${CMAKE_BINARY_DIR}/tests/$<CONFIG>/)
+
+    # Add tests with DLL path
+    add_test(NAME TestStorage 
+        COMMAND test_storage
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+    add_test(NAME TestMemory 
+        COMMAND test_memory
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+    add_test(NAME TestCPU 
+        COMMAND test_cpu
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+    add_test(NAME TestGPU 
+        COMMAND test_gpu
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+    add_test(NAME TestMotherboard 
+        COMMAND test_motherboard
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+    add_test(NAME TestNetwork 
+        COMMAND test_network
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+    add_test(NAME TestAudio 
+        COMMAND test_audio
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+    add_test(NAME TestMonitor 
+        COMMAND test_monitor
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+    add_test(NAME TestBattery 
+        COMMAND test_battery
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests/$<CONFIG>)
+endif()
+
+# Add test directory
+add_subdirectory(tests) 
