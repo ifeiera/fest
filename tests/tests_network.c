@@ -8,9 +8,6 @@ void test_network_info(const char *jsonData)
     assert(strlen(jsonData) > 0);
     assert(strstr(jsonData, "\"network\"") != NULL);
 
-    // Debug output
-    printf("Received JSON: %s\n", jsonData);
-
     // Validate important Network fields
     const char *network = strstr(jsonData, "\"network\"");
     if (!network)
@@ -30,7 +27,10 @@ void test_network_info(const char *jsonData)
         return;
     }
 
-    // If we have network data, validate basic structure
+    /* Validate important Network fields
+     *  check if ethernet are present
+     *  check if wifi are present
+     */
     if (strstr(network, "\"ethernet\"") || strstr(network, "\"wifi\""))
     {
         printf("Found network adapter(s)\n");
