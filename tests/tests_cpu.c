@@ -8,7 +8,12 @@ void test_cpu_info(const char *jsonData)
     assert(strlen(jsonData) > 0);
     assert(strstr(jsonData, "\"cpu\"") != NULL);
 
-    // Validate important CPU fields
+    /* Validate important CPU fields
+     *  check if name are present
+     *  check if cores are present
+     *  check if threads are present
+     *  check if clock_speed are present
+     */
     assert(strstr(jsonData, "\"name\"") != NULL);
     assert(strstr(jsonData, "\"cores\"") != NULL);
     assert(strstr(jsonData, "\"threads\"") != NULL);
