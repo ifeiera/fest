@@ -8,7 +8,15 @@ void test_monitor_info(const char *jsonData)
     assert(strlen(jsonData) > 0);
     assert(strstr(jsonData, "\"monitors\"") != NULL);
 
-    // Validate important Monitor fields
+    /* Validate important Monitor fields
+     *  check if is_primary are present
+     *  check if current_resolution are present
+     *  check if aspect_ratio are present
+     *  check if refresh_rate are present
+     *  check if screen_size are present
+     *  check if manufacturer are present
+     *  check if device_id are present
+     */
     assert(strstr(jsonData, "\"is_primary\"") != NULL);
     assert(strstr(jsonData, "\"current_resolution\"") != NULL);
     assert(strstr(jsonData, "\"aspect_ratio\"") != NULL);
