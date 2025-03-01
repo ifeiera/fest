@@ -8,6 +8,17 @@ void test_memory_info(const char *jsonData)
     assert(strlen(jsonData) > 0);
     assert(strstr(jsonData, "\"memory\"") != NULL);
 
+    /* Validate important Memory fields
+     *  check if total are present
+     *  check if available are present
+     *  check if used are present
+     *  check if percent are present
+     */
+    assert(strstr(jsonData, "\"total\"") != NULL);
+    assert(strstr(jsonData, "\"available\"") != NULL);
+    assert(strstr(jsonData, "\"used\"") != NULL);
+    assert(strstr(jsonData, "\"usage_percent\"") != NULL);
+
     printf("Memory test passed\n");
 }
 
