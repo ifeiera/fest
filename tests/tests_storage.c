@@ -7,7 +7,9 @@ void test_storage_info(const char *jsonData)
     assert(jsonData != NULL);
     assert(strlen(jsonData) > 0);
 
-    // Validate important Storage fields
+    /* Validate important Storage fields
+     *  check if storage are present
+     */
     assert(strstr(jsonData, "\"storage\"") != NULL);
 
     printf("Storage test passed\n");
