@@ -8,7 +8,12 @@ void test_gpu_info(const char *jsonData)
     assert(strlen(jsonData) > 0);
     assert(strstr(jsonData, "\"gpu\"") != NULL);
 
-    // Validate important GPU fields
+    /* Validate important Memory fields
+     *  check if name are present
+     *  check if vram are present
+     *  check if shared_memory are present
+     *  check if type are present
+     */
     assert(strstr(jsonData, "\"name\"") != NULL);
     assert(strstr(jsonData, "\"vram\"") != NULL);
     assert(strstr(jsonData, "\"shared_memory\"") != NULL);
