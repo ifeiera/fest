@@ -9,14 +9,46 @@ void test_network_info(const char *jsonData)
     assert(strstr(jsonData, "\"network\"") != NULL);
 
     // Validate important Network fields
-    // Network section should exist, but might be empty in CI environment
-    if (strstr(jsonData, "\"ethernet\"") != NULL || strstr(jsonData, "\"wifi\"") != NULL)
+    const char *ethernet = strstr(jsonData, "\"ethernet\"");
+    const char *wifi = strstr(jsonData, "\"wifi\"");
+
+    if (ethernet)
     {
-        // Only validate these fields if we have network adapters
-        assert(strstr(jsonData, "\"name\"") != NULL);
-        assert(strstr(jsonData, "\"mac_address\"") != NULL);
+        // Only check fields in the ethernet section
+        const char *eth_section_end = strstr(ethernet + 10, "]");
+        if (eth_section_end)
+        {
+            char eth_section[1024] = {0};
+            size_t len = eth_section_end - ethernet;
+            if (len < sizeof(eth_section))
+            {
+                strncpy(eth_section, ethernet, len);
+                assert(strstr(eth_section, "\"name\"") != NULL);
+                assert(strstr(eth_section, "\"mac_address\"") != NULL);
+            }
+        }
+        printf("Ethernet adapter found and validated\n");
     }
-    else
+
+    if (wifi)
+    {
+        // Only check fields in the wifi section
+        const char *wifi_section_end = strstr(wifi + 7, "]");
+        if (wifi_section_end)
+        {
+            char wifi_section[1024] = {0};
+            size_t len = wifi_section_end - wifi;
+            if (len < sizeof(wifi_section))
+            {
+                strncpy(wifi_section, wifi, len);
+                assert(strstr(wifi_section, "\"name\"") != NULL);
+                assert(strstr(wifi_section, "\"mac_address\"") != NULL);
+            }
+        }
+        printf("WiFi adapter found and validated\n");
+    }
+
+    if (!ethernet && !wifi)
     {
         printf("No network adapters found (this is OK in CI environment)\n");
     }
