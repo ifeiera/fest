@@ -3,34 +3,52 @@
 #include "json_structure.h"
 #include <process.h>
 
-// Global variable for monitoring control
+/**
+ * @brief Global context for system monitoring
+ *
+ * This structure maintains the state and resources for the monitoring system:
+ * - Thread control and synchronization
+ * - Update interval and callback
+ * - Static and dynamic system information
+ */
 static struct
 {
-    BOOL isRunning;
-    int updateInterval;
-    HANDLE monitorThread;
-    HANDLE stopEvent;
-    SystemInfoCallback callback;
+    BOOL isRunning;              // Monitoring state
+    int updateInterval;          // Update interval in milliseconds
+    HANDLE monitorThread;        // Monitoring thread handle
+    HANDLE stopEvent;            // Event for stopping the thread
+    SystemInfoCallback callback; // Callback for sending updates
 
-    // Data structures
-    StaticInfo staticInfo;
-    DynamicInfo dynamicInfo;
+    // System information containers
+    StaticInfo staticInfo;   // Static hardware information
+    DynamicInfo dynamicInfo; // Dynamic system metrics
 
-    // Thread synchronization
-    HANDLE mutex;
-    BOOL isFirstRun;
+    // Synchronization
+    HANDLE mutex;    // Mutex for thread safety
+    BOOL isFirstRun; // First run flag for static info
 } g_MonitorContext = {0};
 
-// Thread function for monitoring
+/**
+ * @brief Thread function for system monitoring
+ *
+ * This function runs in a separate thread and:
+ * 1. Collects static system information on first run
+ * 2. Periodically collects dynamic system information
+ * 3. Generates JSON output and sends through callback
+ * 4. Handles cleanup of collected information
+ *
+ * @param arg Thread argument (unused)
+ * @return unsigned Thread exit code
+ */
 static unsigned __stdcall monitoringThread(void *arg)
 {
     while (g_MonitorContext.isRunning)
     {
-        // Check if stop is requested
+        // Check for stop request
         if (WaitForSingleObject(g_MonitorContext.stopEvent, 0) == WAIT_OBJECT_0)
             break;
 
-        // Get static info on first run
+        // Collect static information once
         if (g_MonitorContext.isFirstRun)
         {
             WaitForSingleObject(g_MonitorContext.mutex, INFINITE);
@@ -43,7 +61,7 @@ static unsigned __stdcall monitoringThread(void *arg)
             ReleaseMutex(g_MonitorContext.mutex);
         }
 
-        // Get dynamic info
+        // Collect dynamic information
         WaitForSingleObject(g_MonitorContext.mutex, INFINITE);
         g_MonitorContext.dynamicInfo.memInfo = getMemoryInfo();
         g_MonitorContext.dynamicInfo.storageList = getStorageList();
@@ -51,7 +69,7 @@ static unsigned __stdcall monitoringThread(void *arg)
         g_MonitorContext.dynamicInfo.networkList = getNetworkList();
         ReleaseMutex(g_MonitorContext.mutex);
 
-        // Generate JSON
+        // Generate and send JSON data
         char *jsonOutput = generateSystemInfoJSON(
             g_MonitorContext.staticInfo.gpuList,
             g_MonitorContext.staticInfo.mbInfo,
@@ -63,14 +81,13 @@ static unsigned __stdcall monitoringThread(void *arg)
             g_MonitorContext.dynamicInfo.batteryInfo,
             g_MonitorContext.staticInfo.monitorList);
 
-        // Send data through callback
         if (jsonOutput && g_MonitorContext.callback)
         {
             g_MonitorContext.callback(jsonOutput);
             freeJSONString(jsonOutput);
         }
 
-        // Cleanup dynamic info
+        // Cleanup dynamic information
         if (g_MonitorContext.dynamicInfo.memInfo)
             freeMemoryInfo(g_MonitorContext.dynamicInfo.memInfo);
         if (g_MonitorContext.dynamicInfo.storageList)
@@ -80,19 +97,27 @@ static unsigned __stdcall monitoringThread(void *arg)
         if (g_MonitorContext.dynamicInfo.networkList)
             freeNetworkList(g_MonitorContext.dynamicInfo.networkList);
 
-        // Wait for interval
         Sleep(g_MonitorContext.updateInterval);
     }
 
     return 0;
 }
 
+/**
+ * @brief Starts the system monitoring process
+ *
+ * Initializes monitoring context and starts a background thread
+ * that periodically collects system information.
+ *
+ * @param updateIntervalMs Interval between updates in milliseconds
+ * @return BOOL TRUE if monitoring started successfully, FALSE if already running or failed
+ */
 SYSTEM_INFO_API BOOL startSystemMonitoring(int updateIntervalMs)
 {
     if (g_MonitorContext.isRunning)
         return FALSE;
 
-    // Initialize context
+    // Initialize monitoring context
     g_MonitorContext.isRunning = TRUE;
     g_MonitorContext.updateInterval = updateIntervalMs;
     g_MonitorContext.isFirstRun = TRUE;
@@ -105,23 +130,28 @@ SYSTEM_INFO_API BOOL startSystemMonitoring(int updateIntervalMs)
     return g_MonitorContext.monitorThread != NULL;
 }
 
+/**
+ * @brief Stops the system monitoring process
+ *
+ * Signals the monitoring thread to stop, waits for completion,
+ * and cleans up all allocated resources.
+ */
 SYSTEM_INFO_API void stopSystemMonitoring(void)
 {
     if (!g_MonitorContext.isRunning)
         return;
 
-    // Signal thread to stop
+    // Signal and wait for thread completion
     SetEvent(g_MonitorContext.stopEvent);
     g_MonitorContext.isRunning = FALSE;
 
-    // Wait for thread to finish
     if (g_MonitorContext.monitorThread)
     {
         WaitForSingleObject(g_MonitorContext.monitorThread, INFINITE);
         CloseHandle(g_MonitorContext.monitorThread);
     }
 
-    // Cleanup static info
+    // Cleanup static information
     if (g_MonitorContext.staticInfo.gpuList)
         freeGPUList(g_MonitorContext.staticInfo.gpuList);
     if (g_MonitorContext.staticInfo.mbInfo)
@@ -133,19 +163,28 @@ SYSTEM_INFO_API void stopSystemMonitoring(void)
     if (g_MonitorContext.staticInfo.monitorList)
         freeMonitorList(g_MonitorContext.staticInfo.monitorList);
 
-    // Cleanup handles
+    // Cleanup synchronization objects
     CloseHandle(g_MonitorContext.mutex);
     CloseHandle(g_MonitorContext.stopEvent);
 
-    // Reset context
     memset(&g_MonitorContext, 0, sizeof(g_MonitorContext));
 }
 
+/**
+ * @brief Sets the update interval for system monitoring
+ *
+ * @param updateIntervalMs New interval between updates in milliseconds
+ */
 SYSTEM_INFO_API void setUpdateInterval(int updateIntervalMs)
 {
     g_MonitorContext.updateInterval = updateIntervalMs;
 }
 
+/**
+ * @brief Sets the callback function for receiving system information updates
+ *
+ * @param callback Function pointer to receive JSON-formatted system information
+ */
 SYSTEM_INFO_API void setSystemInfoCallback(SystemInfoCallback callback)
 {
     g_MonitorContext.callback = callback;
