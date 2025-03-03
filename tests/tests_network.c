@@ -2,13 +2,39 @@
 #include <stdio.h>
 #include <assert.h>
 
+/**
+ * @brief Tests network adapter information JSON output
+ *
+ * This test validates:
+ * 1. JSON data integrity
+ *    - Non-null data
+ *    - Non-empty string
+ *    - Contains "network" section
+ *
+ * 2. Network array structure
+ *    - Valid array brackets
+ *    - Handles empty array case (CI environment)
+ *
+ * 3. Network adapter types
+ *    - Ethernet interfaces
+ *    - WiFi interfaces
+ *
+ * The test is called as a callback by the monitoring system
+ * and validates the JSON structure matches network_info.h specs
+ * Special handling for CI environment where network may be unavailable
+ *
+ * @param jsonData JSON-formatted system information string
+ */
 void test_network_info(const char *jsonData)
 {
     assert(jsonData != NULL);
     assert(strlen(jsonData) > 0);
     assert(strstr(jsonData, "\"network\"") != NULL);
 
-    // Validate important Network fields
+    /**
+     * Validate network section presence
+     * Early return if section not found
+     */
     const char *network = strstr(jsonData, "\"network\"");
     if (!network)
     {
@@ -16,7 +42,10 @@ void test_network_info(const char *jsonData)
         return;
     }
 
-    // Check if network array is empty
+    /**
+     * Check network array structure
+     * Handle empty array case for CI environment
+     */
     const char *network_start = strstr(network, "[");
     const char *network_end = strstr(network, "]");
 
@@ -27,7 +56,8 @@ void test_network_info(const char *jsonData)
         return;
     }
 
-    /* Validate important Network fields
+    /**
+     * Validate important Network fields
      *  check if ethernet are present
      *  check if wifi are present
      */
@@ -43,6 +73,24 @@ void test_network_info(const char *jsonData)
     printf("Network test passed\n");
 }
 
+/**
+ * @brief Test runner for network information tests
+ *
+ * This function:
+ * 1. Sets up the test environment
+ *    - Registers test callback
+ *    - Starts system monitoring
+ *
+ * 2. Executes test sequence
+ *    - Waits for data collection (200ms)
+ *    - Validates callback execution
+ *
+ * 3. Cleans up
+ *    - Stops monitoring
+ *    - Reports test results
+ *
+ * @return int 0 if all tests passed, 1 if any failed
+ */
 int main()
 {
     int testsPassed = 0;
