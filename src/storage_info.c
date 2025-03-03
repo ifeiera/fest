@@ -2,20 +2,33 @@
 #include "wmi_helper.h"
 #include <stdio.h>
 
-// Helper struct for storing physical disk to logical disk mapping
+/**
+ * @brief Structure to map physical disks to logical drive letters
+ */
 typedef struct
 {
     char logicalDrive[4];
     PhysicalDiskInfo info;
 } DiskMapping;
 
+/**
+ * @brief Container for disk mapping information
+ */
 typedef struct
 {
     DiskMapping *mappings;
     UINT count;
 } DiskMappingList;
 
-// Helper function for getting physical disk information and its mappings
+/**
+ * @brief Retrieves physical disk information and maps to logical drives
+ *
+ * This function queries WMI to get physical disk information and establishes
+ * the relationship between physical disks and their logical drive letters.
+ *
+ * @param session Active WMI session
+ * @return DiskMappingList* List of disk mappings, NULL if failed
+ */
 static DiskMappingList *getPhysicalDiskMappings(WMISession *session)
 {
     DiskMappingList *mappings = (DiskMappingList *)malloc(sizeof(DiskMappingList));
@@ -107,7 +120,17 @@ static DiskMappingList *getPhysicalDiskMappings(WMISession *session)
     return mappings;
 }
 
-// Helper function for getting all logical disks for a physical disk
+/**
+ * @brief Gets logical disk information for a physical disk
+ *
+ * This function follows the association chain:
+ * Physical Disk -> Partition -> Logical Disk
+ * to get information about logical drives associated with a physical disk.
+ *
+ * @param session Active WMI session
+ * @param deviceID Physical disk device ID
+ * @param disk Pointer to LogicalDiskInfo structure to fill
+ */
 static void getLogicalDisksForPhysicalDisk(WMISession *session, const wchar_t *deviceID, LogicalDiskInfo *disk)
 {
     wchar_t query[512];
@@ -202,7 +225,24 @@ static void getLogicalDisksForPhysicalDisk(WMISession *session, const wchar_t *d
     }
 }
 
-// Function for getting storage list
+/**
+ * @brief Retrieves comprehensive storage device information
+ *
+ * This function collects detailed information about storage devices including:
+ * 1. Physical disk properties:
+ *    - Model and manufacturer
+ *    - Interface type (SATA, NVMe, etc.)
+ *    - Total capacity
+ *
+ * 2. Logical drive information:
+ *    - Drive letters
+ *    - Drive types (Local, Removable, etc.)
+ *    - Free space
+ *    - Volume names
+ *
+ * @return StorageList* Pointer to allocated storage information list, NULL if failed
+ * @note Caller is responsible for freeing the returned list using freeStorageList()
+ */
 StorageList *getStorageList(void)
 {
     StorageList *list = (StorageList *)malloc(sizeof(StorageList));
@@ -212,7 +252,7 @@ StorageList *getStorageList(void)
     list->disks = NULL;
     list->count = 0;
 
-    // Initialize WMI
+    // Initialize WMI connection
     WMISession *session = initializeWMI();
     if (!session)
     {
@@ -220,7 +260,7 @@ StorageList *getStorageList(void)
         return NULL;
     }
 
-    // Query disk drive information
+    // Query physical disk information
     IEnumWbemClassObject *pEnumerator = NULL;
     if (executeWQLQuery(session, L"SELECT * FROM Win32_DiskDrive", &pEnumerator))
     {
@@ -293,6 +333,11 @@ StorageList *getStorageList(void)
     return list;
 }
 
+/**
+ * @brief Frees memory allocated for StorageList structure
+ *
+ * @param list Pointer to StorageList structure to be freed
+ */
 void freeStorageList(StorageList *list)
 {
     if (list)
@@ -303,31 +348,67 @@ void freeStorageList(StorageList *list)
     }
 }
 
+/**
+ * @brief Gets the drive letter of the logical disk
+ *
+ * @param disk Pointer to LogicalDiskInfo structure
+ * @return const char* Drive letter (e.g. "C:") or empty string if disk is NULL
+ */
 const char *getDiskDrive(const LogicalDiskInfo *disk)
 {
     return disk ? disk->drive : "";
 }
 
+/**
+ * @brief Gets the type of the logical disk
+ *
+ * @param disk Pointer to LogicalDiskInfo structure
+ * @return const char* Drive type (Local Disk, Removable Disk, etc.) or empty string if disk is NULL
+ */
 const char *getDiskType(const LogicalDiskInfo *disk)
 {
     return disk ? disk->type : "";
 }
 
+/**
+ * @brief Gets the model/name of the disk
+ *
+ * @param disk Pointer to LogicalDiskInfo structure
+ * @return const char* Disk model or volume name, empty string if disk is NULL
+ */
 const char *getDiskModel(const LogicalDiskInfo *disk)
 {
     return disk ? disk->model : "";
 }
 
+/**
+ * @brief Gets the interface type of the disk
+ *
+ * @param disk Pointer to LogicalDiskInfo structure
+ * @return const char* Interface type (SATA, NVMe, etc.) or empty string if disk is NULL
+ */
 const char *getDiskInterface(const LogicalDiskInfo *disk)
 {
     return disk ? disk->interfaceType : "";
 }
 
+/**
+ * @brief Gets the total size of the disk
+ *
+ * @param disk Pointer to LogicalDiskInfo structure
+ * @return double Total size in gigabytes or 0.0 if disk is NULL
+ */
 double getDiskTotalSize(const LogicalDiskInfo *disk)
 {
     return disk ? disk->totalSize : 0.0;
 }
 
+/**
+ * @brief Gets the available free space on the disk
+ *
+ * @param disk Pointer to LogicalDiskInfo structure
+ * @return double Free space in gigabytes or 0.0 if disk is NULL
+ */
 double getDiskFreeSpace(const LogicalDiskInfo *disk)
 {
     return disk ? disk->freeSpace : 0.0;
