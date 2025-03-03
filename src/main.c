@@ -1,7 +1,8 @@
-// Not for dll build
-// NEED TO UPDATE!!!
-// Newer version in system_info_dll.h and system_info_dll.c
-
+/**
+ * NEED TO UPDATE!!!
+ * NOT FOR DLL BUILD
+ * NEW VERSION IN SYSTEM_INFO_DLL.H AND SYSTEM_INFO_DLL.C
+ */
 #include "gpu_info.h"
 #include "motherboard_info.h"
 #include "cpu_info.h"
@@ -15,7 +16,17 @@
 #include <windows.h>
 #include <process.h>
 
-// Structure for storing static information
+/**
+ * @brief Container for static hardware information
+ *
+ * Holds information that rarely changes during system operation:
+ * - GPU configuration
+ * - Motherboard details
+ * - CPU information
+ * - Network adapters
+ * - Audio devices
+ * - Monitor setup
+ */
 typedef struct
 {
     GPUList *gpuList;
@@ -26,7 +37,14 @@ typedef struct
     MonitorList *monitorList;
 } StaticInfo;
 
-// Structure for storing dynamic information
+/**
+ * @brief Container for dynamic system information
+ *
+ * Holds information that frequently changes:
+ * - Memory usage
+ * - Storage space
+ * - Battery status
+ */
 typedef struct
 {
     MemoryInfo *memInfo;
@@ -34,18 +52,39 @@ typedef struct
     BatteryInfo *batteryInfo;
 } DynamicInfo;
 
-// Structure for thread synchronization
+/**
+ * @brief Thread synchronization and data sharing context
+ *
+ * Provides thread-safe access to shared resources:
+ * - Mutex for synchronization
+ * - Shared data structures
+ * - Thread completion tracking
+ * - First run flag
+ */
 typedef struct
 {
-    HANDLE mutex;
-    StaticInfo *staticInfo;
-    DynamicInfo *dynamicInfo;
-    HANDLE threadsComplete;
-    int threadsRunning;
-    BOOL isFirstRun;
+    HANDLE mutex;             // Synchronization mutex
+    StaticInfo *staticInfo;   // Static hardware information
+    DynamicInfo *dynamicInfo; // Dynamic system metrics
+    HANDLE threadsComplete;   // Thread completion event
+    int threadsRunning;       // Active thread counter
+    BOOL isFirstRun;          // First run indicator
 } ThreadContext;
 
-// Thread function for static hardware info
+/**
+ * @brief Thread function for collecting static hardware information
+ *
+ * This thread runs once on first execution to collect:
+ * - CPU configuration
+ * - GPU details
+ * - Motherboard information
+ * - Network adapters
+ * - Audio devices
+ * - Monitor configuration
+ *
+ * @param arg Pointer to ThreadContext structure
+ * @return unsigned Thread exit code
+ */
 static unsigned __stdcall getStaticHardwareInfoThread(void *arg)
 {
     ThreadContext *ctx = (ThreadContext *)arg;
@@ -68,7 +107,17 @@ static unsigned __stdcall getStaticHardwareInfoThread(void *arg)
     return 0;
 }
 
-// Thread function for dynamic info that often changes
+/**
+ * @brief Thread function for collecting dynamic system information
+ *
+ * This thread runs periodically to collect:
+ * - Memory usage statistics
+ * - Storage space information
+ * - Battery status updates
+ *
+ * @param arg Pointer to ThreadContext structure
+ * @return unsigned Thread exit code
+ */
 static unsigned __stdcall getDynamicInfoThread(void *arg)
 {
     ThreadContext *ctx = (ThreadContext *)arg;
@@ -85,7 +134,19 @@ static unsigned __stdcall getDynamicInfoThread(void *arg)
     return 0;
 }
 
-// Function for cleaning static info
+/**
+ * @brief Frees resources allocated for static information
+ *
+ * Cleans up:
+ * - GPU list
+ * - Motherboard info
+ * - CPU list
+ * - Network adapters
+ * - Audio devices
+ * - Monitor list
+ *
+ * @param info Pointer to StaticInfo structure
+ */
 static void cleanupStaticInfo(StaticInfo *info)
 {
     if (!info)
@@ -104,7 +165,16 @@ static void cleanupStaticInfo(StaticInfo *info)
         freeMonitorList(info->monitorList);
 }
 
-// Function for cleaning dynamic info
+/**
+ * @brief Frees resources allocated for dynamic information
+ *
+ * Cleans up:
+ * - Memory info
+ * - Storage list
+ * - Battery info
+ *
+ * @param info Pointer to DynamicInfo structure
+ */
 static void cleanupDynamicInfo(DynamicInfo *info)
 {
     if (!info)
@@ -117,13 +187,24 @@ static void cleanupDynamicInfo(DynamicInfo *info)
         freeBatteryInfo(info->batteryInfo);
 }
 
+/**
+ * @brief Main application entry point
+ *
+ * This function:
+ * 1. Initializes data structures and synchronization objects
+ * 2. Creates threads for collecting system information
+ * 3. Periodically generates and outputs JSON data
+ * 4. Handles cleanup of resources
+ *
+ * @return int Program exit code
+ */
 int main()
 {
-    // Initialize info structures
+    // Initialize data structures
     StaticInfo staticInfo = {0};
     DynamicInfo dynamicInfo = {0};
 
-    // Initialize thread context
+    // Setup thread synchronization
     ThreadContext ctx = {0};
     ctx.mutex = CreateMutex(NULL, FALSE, NULL);
     ctx.threadsComplete = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -133,20 +214,20 @@ int main()
 
     HANDLE threads[2];
 
-    while (1) // Loop utama
+    while (1) // Main monitoring loop
     {
-        // Reset event dan thread counter
+        // Reset synchronization objects
         ResetEvent(ctx.threadsComplete);
         ctx.threadsRunning = 2;
 
-        // Create threads
+        // Start collection threads
         threads[0] = (HANDLE)_beginthreadex(NULL, 0, getStaticHardwareInfoThread, &ctx, 0, NULL);
         threads[1] = (HANDLE)_beginthreadex(NULL, 0, getDynamicInfoThread, &ctx, 0, NULL);
 
-        // Wait for all threads to complete
+        // Wait for data collection
         WaitForSingleObject(ctx.threadsComplete, INFINITE);
 
-        // Generate and print JSON
+        // Generate and output JSON
         char *jsonOutput = generateSystemInfoJSON(
             staticInfo.gpuList, staticInfo.mbInfo, staticInfo.cpuList,
             dynamicInfo.memInfo, dynamicInfo.storageList, staticInfo.networkList,
@@ -158,19 +239,13 @@ int main()
             freeJSONString(jsonOutput);
         }
 
-        // Cleanup dynamic info every iteration
+        // Cleanup iteration resources
         cleanupDynamicInfo(&dynamicInfo);
-
-        // Cleanup thread handles
         CloseHandle(threads[0]);
         CloseHandle(threads[1]);
 
-        ctx.isFirstRun = FALSE; // Set false after first run
-
-        Sleep(1000); // Delay 1 second between updates
-
-        // Can add condition to exit loop
-        // for example with keyboard input or signal
+        ctx.isFirstRun = FALSE;
+        Sleep(1000); // 1 second update interval
     }
 
     // Final cleanup
