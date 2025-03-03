@@ -5,6 +5,19 @@
 
 #define JSON_BUFFER_SIZE 32768 // 32KB initial buffer
 
+/**
+ * @brief Appends a string to a dynamically growing buffer
+ *
+ * This function:
+ * 1. Checks if buffer needs to grow
+ * 2. Reallocates buffer if needed
+ * 3. Appends string safely using strcpy_s
+ *
+ * @param buffer Pointer to buffer pointer
+ * @param bufferSize Pointer to current buffer size
+ * @param position Pointer to current position in buffer
+ * @param str String to append
+ */
 static void appendString(char **buffer, size_t *bufferSize, size_t *position, const char *str)
 {
     size_t len = strlen(str);
@@ -17,7 +30,19 @@ static void appendString(char **buffer, size_t *bufferSize, size_t *position, co
     *position += len;
 }
 
-// Function for appending GPU information
+/**
+ * @brief Formats GPU information into JSON
+ *
+ * Creates a JSON array of GPU objects containing:
+ * - Name and type (iGPU/dGPU)
+ * - VRAM capacity
+ * - Shared memory size
+ *
+ * @param buffer Output buffer
+ * @param bufferSize Buffer size
+ * @param position Current position
+ * @param gpuList List of GPU information
+ */
 static void appendGPUInfo(char **buffer, size_t *bufferSize, size_t *position, GPUList *gpuList)
 {
     appendString(buffer, bufferSize, position, "  \"gpu\": [\n");
@@ -28,8 +53,8 @@ static void appendGPUInfo(char **buffer, size_t *bufferSize, size_t *position, G
         _snprintf_s(temp, sizeof(temp), _TRUNCATE,
                     "    {\n"
                     "      \"name\": \"%s\",\n"
-                    "      \"vram\": %llu,\n"
-                    "      \"shared_memory\": %llu,\n"
+                    "      \"vram\": %.2f,\n"
+                    "      \"shared_memory\": %.2f,\n"
                     "      \"type\": \"%s\"\n"
                     "    }%s",
                     getGPUName(gpu),
@@ -42,7 +67,20 @@ static void appendGPUInfo(char **buffer, size_t *bufferSize, size_t *position, G
     appendString(buffer, bufferSize, position, "  ],\n");
 }
 
-// Function for appending Motherboard information
+/**
+ * @brief Formats motherboard information into JSON
+ *
+ * Creates a JSON object containing:
+ * - Manufacturer and product details
+ * - Serial numbers
+ * - BIOS information
+ * - System SKU
+ *
+ * @param buffer Output buffer
+ * @param bufferSize Buffer size
+ * @param position Current position
+ * @param mbInfo Motherboard information
+ */
 static void appendMotherboardInfo(char **buffer, size_t *bufferSize, size_t *position, MotherboardInfo *mbInfo)
 {
     char temp[2048];
@@ -64,7 +102,16 @@ static void appendMotherboardInfo(char **buffer, size_t *bufferSize, size_t *pos
     appendString(buffer, bufferSize, position, temp);
 }
 
-// Helper function for cleaning string from unnecessary whitespace
+/**
+ * @brief Removes unnecessary whitespace from a string
+ *
+ * This function:
+ * 1. Trims leading whitespace
+ * 2. Trims trailing whitespace
+ * 3. Preserves internal spaces
+ *
+ * @param str String to clean
+ */
 static void trimString(char *str)
 {
     if (!str)
@@ -90,7 +137,19 @@ static void trimString(char *str)
     }
 }
 
-// Function for appending CPU information
+/**
+ * @brief Formats CPU information into JSON
+ *
+ * Creates a JSON array of CPU objects containing:
+ * - Processor name (cleaned)
+ * - Core and thread count
+ * - Clock speed
+ *
+ * @param buffer Output buffer
+ * @param bufferSize Buffer size
+ * @param position Current position
+ * @param cpuList List of CPU information
+ */
 static void appendCPUInfo(char **buffer, size_t *bufferSize, size_t *position, CPUList *cpuList)
 {
     appendString(buffer, bufferSize, position, "  \"cpu\": [\n");
@@ -121,7 +180,19 @@ static void appendCPUInfo(char **buffer, size_t *bufferSize, size_t *position, C
     appendString(buffer, bufferSize, position, "  ],\n");
 }
 
-// Function for appending Memory information
+/**
+ * @brief Formats memory information into JSON
+ *
+ * Creates a JSON object containing:
+ * - System memory statistics
+ * - RAM slot information
+ * - Memory usage metrics
+ *
+ * @param buffer Output buffer
+ * @param bufferSize Buffer size
+ * @param position Current position
+ * @param memInfo Memory information
+ */
 static void appendMemoryInfo(char **buffer, size_t *bufferSize, size_t *position, MemoryInfo *memInfo)
 {
     appendString(buffer, bufferSize, position, "  \"memory\": {\n");
@@ -163,7 +234,19 @@ static void appendMemoryInfo(char **buffer, size_t *bufferSize, size_t *position
     appendString(buffer, bufferSize, position, "  },\n");
 }
 
-// Function for appending Storage information
+/**
+ * @brief Formats storage information into JSON
+ *
+ * Creates a JSON array of storage devices containing:
+ * - Drive letters and types
+ * - Model and interface information
+ * - Capacity and space usage
+ *
+ * @param buffer Output buffer
+ * @param bufferSize Buffer size
+ * @param position Current position
+ * @param storageList List of storage devices
+ */
 static void appendStorageInfo(char **buffer, size_t *bufferSize, size_t *position, StorageList *storageList)
 {
     appendString(buffer, bufferSize, position, "  \"storage\": [\n");
@@ -194,7 +277,19 @@ static void appendStorageInfo(char **buffer, size_t *bufferSize, size_t *positio
     appendString(buffer, bufferSize, position, "  ],\n");
 }
 
-// Function for appending Network information
+/**
+ * @brief Formats network adapter information into JSON
+ *
+ * Creates a JSON object with two arrays:
+ * 1. Ethernet adapters
+ * 2. WiFi adapters
+ * Each containing connection and identification details
+ *
+ * @param buffer Output buffer
+ * @param bufferSize Buffer size
+ * @param position Current position
+ * @param networkList List of network adapters
+ */
 static void appendNetworkInfo(char **buffer, size_t *bufferSize, size_t *position, NetworkList *networkList)
 {
     appendString(buffer, bufferSize, position, "  \"network\": {\n");
@@ -257,7 +352,18 @@ static void appendNetworkInfo(char **buffer, size_t *bufferSize, size_t *positio
     appendString(buffer, bufferSize, position, "  },\n");
 }
 
-// Function for appending Audio information
+/**
+ * @brief Formats audio device information into JSON
+ *
+ * Creates a JSON array of audio devices containing:
+ * - Device name
+ * - Manufacturer information
+ *
+ * @param buffer Output buffer
+ * @param bufferSize Buffer size
+ * @param position Current position
+ * @param audioList List of audio devices
+ */
 static void appendAudioInfo(char **buffer, size_t *bufferSize, size_t *position, AudioList *audioList)
 {
     appendString(buffer, bufferSize, position, "  \"audio\": [\n");
@@ -278,7 +384,19 @@ static void appendAudioInfo(char **buffer, size_t *bufferSize, size_t *position,
     appendString(buffer, bufferSize, position, "  ],\n");
 }
 
-// Function for appending Battery information
+/**
+ * @brief Formats battery information into JSON
+ *
+ * Creates a JSON object containing:
+ * - System type (desktop/laptop)
+ * - Battery percentage
+ * - Power connection status
+ *
+ * @param buffer Output buffer
+ * @param bufferSize Buffer size
+ * @param position Current position
+ * @param batteryInfo Battery information
+ */
 static void appendBatteryInfo(char **buffer, size_t *bufferSize, size_t *position, BatteryInfo *batteryInfo)
 {
     char temp[1024];
@@ -294,7 +412,21 @@ static void appendBatteryInfo(char **buffer, size_t *bufferSize, size_t *positio
     appendString(buffer, bufferSize, position, temp);
 }
 
-// Function for appending Monitor information
+/**
+ * @brief Appends monitor information to JSON buffer
+ *
+ * Generates JSON array containing detailed monitor specifications:
+ * - Display identification (device ID, manufacturer)
+ * - Resolution information (current, native, width, height)
+ * - Physical characteristics (screen size, dimensions)
+ * - Display settings (refresh rate, primary status)
+ * - EDID details (bit depth, color space, manufacture date)
+ *
+ * @param buffer Pointer to JSON string buffer pointer
+ * @param bufferSize Pointer to buffer size
+ * @param position Pointer to current position in buffer
+ * @param monitorList List of monitor information to append
+ */
 static void appendMonitorInfo(char **buffer, size_t *bufferSize, size_t *position, MonitorList *monitorList)
 {
     appendString(buffer, bufferSize, position, "  \"monitors\": [\n");
@@ -305,18 +437,28 @@ static void appendMonitorInfo(char **buffer, size_t *bufferSize, size_t *positio
         _snprintf_s(temp, sizeof(temp), _TRUNCATE,
                     "    {\n"
                     "      \"is_primary\": %s,\n"
+                    "      \"width\": %d,\n"
+                    "      \"height\": %d,\n"
                     "      \"current_resolution\": \"%s\",\n"
+                    "      \"native_resolution\": \"%s\",\n"
                     "      \"aspect_ratio\": \"%s\",\n"
                     "      \"refresh_rate\": %d,\n"
                     "      \"screen_size\": \"%s\",\n"
+                    "      \"physical_width_mm\": %d,\n"
+                    "      \"physical_height_mm\": %d,\n"
                     "      \"manufacturer\": \"%s\",\n"
                     "      \"device_id\": \"%s\"\n"
                     "    }%s",
                     isMonitorPrimary(monitor) ? "true" : "false",
+                    getMonitorWidth(monitor),
+                    getMonitorHeight(monitor),
                     getMonitorCurrentResolution(monitor),
+                    getMonitorNativeResolution(monitor),
                     getMonitorAspectRatio(monitor),
                     getMonitorRefreshRate(monitor),
                     getMonitorScreenSize(monitor),
+                    monitor->physicalWidthMm,
+                    monitor->physicalHeightMm,
                     getMonitorManufacturer(monitor),
                     getMonitorDeviceId(monitor),
                     i < monitorList->count - 1 ? ",\n" : "\n");
@@ -325,7 +467,28 @@ static void appendMonitorInfo(char **buffer, size_t *bufferSize, size_t *positio
     appendString(buffer, bufferSize, position, "  ]\n");
 }
 
-// Function for generating JSON string
+/**
+ * @brief Generates a complete system information JSON string
+ *
+ * This function combines all hardware information into a single JSON object.
+ * It handles:
+ * 1. Dynamic buffer allocation and growth
+ * 2. JSON structure formatting
+ * 3. NULL parameter handling
+ * 4. Memory cleanup on error
+ *
+ * @param gpuList GPU information
+ * @param mbInfo Motherboard information
+ * @param cpuList CPU information
+ * @param memInfo Memory information
+ * @param storageList Storage information
+ * @param networkList Network information
+ * @param audioList Audio device information
+ * @param batteryInfo Battery information
+ * @param monitorList Monitor information
+ * @return char* Allocated JSON string, NULL if failed
+ * @note Caller must free the returned string using freeJSONString()
+ */
 char *generateSystemInfoJSON(
     GPUList *gpuList,
     MotherboardInfo *mbInfo,
@@ -380,7 +543,11 @@ char *generateSystemInfoJSON(
     return jsonBuffer;
 }
 
-// Function for freeing JSON string
+/**
+ * @brief Frees memory allocated for JSON string
+ *
+ * @param jsonStr Pointer to JSON string to free
+ */
 void freeJSONString(char *jsonStr)
 {
     if (jsonStr)
