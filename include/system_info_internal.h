@@ -11,23 +11,50 @@
 #include "battery_info.h"
 #include "monitor_info.h"
 
-// Structure for storing static information
+/**
+ * @brief Container for relatively static system information
+ *
+ * Holds hardware information that rarely changes during runtime:
+ * - Graphics adapters configuration
+ * - Motherboard details
+ * - CPU specifications
+ * - Audio devices
+ * - Display setup
+ *
+ * This information is typically collected once at startup
+ * or when hardware configuration changes are detected
+ *
+ * @note All pointers must be freed individually
+ */
 typedef struct
 {
-    GPUList *gpuList;
-    MotherboardInfo *mbInfo;
-    CPUList *cpuList;
-    AudioList *audioList;
-    MonitorList *monitorList;
+    GPUList *gpuList;         // Graphics adapters
+    MotherboardInfo *mbInfo;  // System board
+    CPUList *cpuList;         // Processors
+    AudioList *audioList;     // Audio devices
+    MonitorList *monitorList; // Display devices
 } StaticInfo;
 
-// Structure for storing dynamic information
+/**
+ * @brief Container for frequently updated system information
+ *
+ * Holds system metrics that change regularly:
+ * - Memory usage
+ * - Storage space
+ * - Battery status
+ * - Network status
+ *
+ * This information is collected at each monitoring interval
+ * to provide current system status
+ *
+ * @note All pointers must be freed individually
+ */
 typedef struct
 {
-    MemoryInfo *memInfo;
-    StorageList *storageList;
-    BatteryInfo *batteryInfo;
-    NetworkList *networkList;
+    MemoryInfo *memInfo;      // Memory metrics
+    StorageList *storageList; // Storage volumes
+    BatteryInfo *batteryInfo; // Power status
+    NetworkList *networkList; // Network adapters
 } DynamicInfo;
 
 #endif // SYSTEM_INFO_INTERNAL_H
